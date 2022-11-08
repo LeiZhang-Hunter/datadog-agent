@@ -26,7 +26,7 @@ var allowedMetrics = map[string]bool{
 func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFamily) (string, float64, []string, error) {
 	metricName := metricFamily.GetName()
 	allowed := allowedMetrics[metricName]
-	if allowed {
+	if !allowed {
 		return "", 0, nil, fmt.Errorf("metric mapping not found for %s", metricName)
 	}
 	var floatValue float64
