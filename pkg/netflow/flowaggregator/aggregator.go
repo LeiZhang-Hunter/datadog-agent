@@ -7,6 +7,7 @@ package flowaggregator
 
 import (
 	"encoding/json"
+	"github.com/DataDog/datadog-agent/pkg/netflow/goflowlib"
 	"time"
 
 	prometheus "github.com/prometheus/client_golang/prometheus"
@@ -164,10 +165,14 @@ func (agg *FlowAggregator) submitGoflowMetrics() error {
 		return err
 	}
 	for _, metricFamily := range metrics {
-		if metricFamily.GetName() == "flow_decoder_count" {
-			for _, metric := range metricFamily.Metric {
-				agg.sender.Gauge("datadog.netflow.listener.decoder_count", metric.Gauge.GetValue(), "", nil)
+		log.Debugf("Prom metric: %s", metricFamily.GetName())
+		for _, metric := range metricFamily.Metric {
+			name, value, tags, err := goflowlib.ConvertMetric(metric, metricFamily)
+			if err != nil {
+				log.Debugf("Error converting prometheus metric: %s", err)
+				continue
 			}
+			agg.sender.Gauge("datadog.netflow.collector."+name, value, "", tags)
 		}
 	}
 	return nil
