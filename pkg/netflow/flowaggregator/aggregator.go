@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"time"
 
+	prometheus "github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/atomic"
 
 	"github.com/DataDog/datadog-agent/pkg/aggregator"
@@ -145,10 +146,29 @@ func (agg *FlowAggregator) flush() int {
 	agg.sender.Gauge("datadog.netflow.aggregator.input_buffer.capacity", float64(cap(agg.flowIn)), "", nil)
 	agg.sender.Gauge("datadog.netflow.aggregator.input_buffer.length", float64(len(agg.flowIn)), "", nil)
 
+	err := agg.submitGoflowMetrics()
+	if err != nil {
+		log.Debugf("Error submitting goflow metrics: %s", err)
+	}
 	return len(flowsToFlush)
 }
 
 func (agg *FlowAggregator) rollupTrackersRefresh() {
 	log.Debugf("Rollup tracker refresh: use new store as current store")
 	agg.flowAcc.portRollup.UseNewStoreAsCurrentStore()
+}
+
+func (agg *FlowAggregator) submitGoflowMetrics() error {
+	metrics, err := prometheus.DefaultGatherer.Gather()
+	if err != nil {
+		return err
+	}
+	for _, metricFamily := range metrics {
+		if metricFamily.GetName() == "flow_decoder_count" {
+			for _, metric := range metricFamily.Metric {
+				agg.sender.Gauge("datadog.netflow.listener.decoder_count", metric.Gauge.GetValue(), "", nil)
+			}
+		}
+	}
+	return nil
 }
