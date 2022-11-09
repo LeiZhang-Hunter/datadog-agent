@@ -7,6 +7,7 @@ package flowaggregator
 
 import (
 	"encoding/json"
+	"github.com/DataDog/datadog-agent/pkg/metrics"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -22,6 +23,8 @@ import (
 )
 
 const flowAggregatorFlushInterval = 10 * time.Second
+
+const metricPrefix = "datadog.netflow."
 
 // FlowAggregator is used for space and time aggregation of NetFlow flows
 type FlowAggregator struct {
@@ -147,9 +150,10 @@ func (agg *FlowAggregator) flush() int {
 	agg.sender.Gauge("datadog.netflow.aggregator.input_buffer.capacity", float64(cap(agg.flowIn)), "", nil)
 	agg.sender.Gauge("datadog.netflow.aggregator.input_buffer.length", float64(len(agg.flowIn)), "", nil)
 
-	err := agg.submitGoflowMetrics()
+	err := agg.submitCollectorMetrics()
 	if err != nil {
-		log.Debugf("Error submitting goflow metrics: %s", err)
+		// TODO: test me
+		log.Debugf("error submitting collector metrics: %s", err)
 	}
 	return len(flowsToFlush)
 }
@@ -159,20 +163,28 @@ func (agg *FlowAggregator) rollupTrackersRefresh() {
 	agg.flowAcc.portRollup.UseNewStoreAsCurrentStore()
 }
 
-func (agg *FlowAggregator) submitGoflowMetrics() error {
-	metrics, err := prometheus.DefaultGatherer.Gather()
+func (agg *FlowAggregator) submitCollectorMetrics() error {
+	promMetrics, err := prometheus.DefaultGatherer.Gather()
 	if err != nil {
 		return err
 	}
-	for _, metricFamily := range metrics {
+	for _, metricFamily := range promMetrics {
 		log.Debugf("Prom metric: %s", metricFamily.GetName())
 		for _, metric := range metricFamily.Metric {
-			name, value, tags, err := goflowlib.ConvertMetric(metric, metricFamily)
+			metricType, name, value, tags, err := goflowlib.ConvertMetric(metric, metricFamily)
 			if err != nil {
 				log.Debugf("Error converting prometheus metric: %s", err)
 				continue
 			}
-			agg.sender.Gauge("datadog.netflow."+name, value, "", tags)
+			switch metricType {
+			case metrics.GaugeType:
+				agg.sender.Gauge(metricPrefix+name, value, "", tags)
+			case metrics.MonotonicCountType:
+				agg.sender.MonotonicCount(metricPrefix+name, value, "", tags)
+			default:
+				// TODO: test me
+				log.Debugf("cannot submit unsupported type %s", metricType.String())
+			}
 		}
 	}
 	return nil

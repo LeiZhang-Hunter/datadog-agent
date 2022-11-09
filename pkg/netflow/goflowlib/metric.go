@@ -2,6 +2,7 @@ package goflowlib
 
 import (
 	"fmt"
+	"github.com/DataDog/datadog-agent/pkg/metrics"
 	promClient "github.com/prometheus/client_model/go"
 )
 
@@ -141,25 +142,28 @@ func remapSFlowVersion(version string) string {
 	return sflowVersionMapper[version]
 }
 
-func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFamily) (string, float64, []string, error) {
+func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFamily) (metrics.MetricType, string, float64, []string, error) {
+	var ddMetricType metrics.MetricType
 	origMetricName := metricFamily.GetName()
 	aMappedMetric, ok := metricNameMapping[origMetricName]
 	if !ok {
-		return "", 0, nil, fmt.Errorf("metric mapping not found for %s", origMetricName)
+		return 0, "", 0, nil, fmt.Errorf("metric mapping not found for %s", origMetricName)
 	}
 	var floatValue float64
 	if metricFamily.GetType() == promClient.MetricType_COUNTER {
 		floatValue = metric.GetCounter().GetValue()
 	}
-	metricType := metricFamily.GetType()
-	switch metricType {
+	promMetricType := metricFamily.GetType()
+	switch promMetricType {
 	case promClient.MetricType_COUNTER:
 		floatValue = metric.GetCounter().GetValue()
+		ddMetricType = metrics.MonotonicCountType
 	case promClient.MetricType_GAUGE:
 		floatValue = metric.GetGauge().GetValue()
+		ddMetricType = metrics.GaugeType
 	default:
-		name := promClient.MetricType_name[int32(metricType)]
-		return "", 0, nil, fmt.Errorf("metric type `%s` (%d) not supported", name, metricType)
+		name := promClient.MetricType_name[int32(promMetricType)]
+		return 0, "", 0, nil, fmt.Errorf("metric type `%s` (%d) not supported", name, promMetricType)
 	}
 	var tags []string
 	for _, labelPair := range metric.GetLabel() {
@@ -184,5 +188,5 @@ func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFam
 	if len(aMappedMetric.extraTags) > 0 {
 		tags = append(tags, aMappedMetric.extraTags...)
 	}
-	return aMappedMetric.name, floatValue, tags, nil
+	return ddMetricType, aMappedMetric.name, floatValue, tags, nil
 }
