@@ -156,7 +156,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedErr:        "",
 		},
 		{
-			name: "METRIC remapFlowset DataFlowSet",
+			name: "REMAPPER remapFlowset DataFlowSet",
 			metricFamily: &promClient.MetricFamily{
 				Name: proto.String("flow_process_nf_flowset_sum"),
 				Type: promClient.MetricType_COUNTER.Enum(),
@@ -176,7 +176,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedErr:        "",
 		},
 		{
-			name: "METRIC remapFlowset TemplateFlowSet",
+			name: "REMAPPER remapFlowset TemplateFlowSet",
 			metricFamily: &promClient.MetricFamily{
 				Name: proto.String("flow_process_nf_flowset_sum"),
 				Type: promClient.MetricType_COUNTER.Enum(),
@@ -196,7 +196,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedErr:        "",
 		},
 		{
-			name: "METRIC remapFlowset OptionsTemplateFlowSet",
+			name: "REMAPPER remapFlowset OptionsTemplateFlowSet",
 			metricFamily: &promClient.MetricFamily{
 				Name: proto.String("flow_process_nf_flowset_sum"),
 				Type: promClient.MetricType_COUNTER.Enum(),
@@ -216,7 +216,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedErr:        "",
 		},
 		{
-			name: "METRIC remapFlowset OptionsDataFlowSet",
+			name: "REMAPPER remapFlowset OptionsDataFlowSet",
 			metricFamily: &promClient.MetricFamily{
 				Name: proto.String("flow_process_nf_flowset_sum"),
 				Type: promClient.MetricType_COUNTER.Enum(),
@@ -236,7 +236,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedErr:        "",
 		},
 		{
-			name: "METRIC remapFlowset UNKNOWN",
+			name: "REMAPPER remapFlowset UNKNOWN",
 			metricFamily: &promClient.MetricFamily{
 				Name: proto.String("flow_process_nf_flowset_sum"),
 				Type: promClient.MetricType_COUNTER.Enum(),
