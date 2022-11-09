@@ -151,12 +151,15 @@ func remapSFlowVersion(version string) string {
 
 func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFamily) (metrics.MetricType, string, float64, []string, error) {
 	var ddMetricType metrics.MetricType
+	var floatValue float64
+	var tags []string
+
 	origMetricName := metricFamily.GetName()
 	aMappedMetric, ok := metricNameMapping[origMetricName]
 	if !ok {
 		return 0, "", 0, nil, fmt.Errorf("metric mapping not found for %s", origMetricName)
 	}
-	var floatValue float64
+
 	if metricFamily.GetType() == promClient.MetricType_COUNTER {
 		floatValue = metric.GetCounter().GetValue()
 	}
@@ -172,7 +175,7 @@ func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFam
 		name := promClient.MetricType_name[int32(promMetricType)]
 		return 0, "", 0, nil, fmt.Errorf("metric type `%s` (%d) not supported", name, promMetricType)
 	}
-	var tags []string
+
 	for _, labelPair := range metric.GetLabel() {
 		tagKey := labelPair.GetName()
 		if !aMappedMetric.isAllowedTagKey(tagKey) {
