@@ -39,17 +39,6 @@ var flowsetMapper = map[string]string{
 	// TODO: test all cases
 }
 
-var netflowVersionMapper = map[string]string{
-	"5":  "netflow5",
-	"9":  "netflow9",
-	"10": "netflow10",
-	// TODO: test all cases
-}
-
-var sflowVersionMapper = map[string]string{
-	"5": "sflow5",
-}
-
 // metricNameMapping maps goflow prometheus metrics to datadog netflow telemetry metrics
 var metricNameMapping = map[string]mappedMetric{
 	"flow_decoder_count": mappedMetric{
@@ -94,7 +83,7 @@ var metricNameMapping = map[string]mappedMetric{
 		keyRemapper: map[string]string{
 			"local_port": "listener_port",
 			"remote_ip":  "device_ip",
-			"name":       "flow_type",
+			"name":       "collector_type",
 		},
 		valueRemapper: map[string]remapperType{
 			"name": remapCollectorType,
@@ -106,7 +95,7 @@ var metricNameMapping = map[string]mappedMetric{
 		keyRemapper: map[string]string{
 			"local_port": "listener_port",
 			"remote_ip":  "device_ip",
-			"name":       "flow_type",
+			"name":       "collector_type",
 		},
 		valueRemapper: map[string]remapperType{
 			"name": remapCollectorType,
@@ -115,13 +104,10 @@ var metricNameMapping = map[string]mappedMetric{
 	"flow_process_sf_count": mappedMetric{
 		name:           "processor.flows",
 		allowedTagKeys: []string{"router", "version"},
-		valueRemapper: map[string]remapperType{
-			"version": remapSFlowVersion,
-		},
 		keyRemapper: map[string]string{
-			"router":  "device_ip",
-			"version": "flow_type",
+			"router": "device_ip",
 		},
+		extraTags: []string{"flow_protocol:sflow"},
 	},
 	"flow_process_sf_errors_count": mappedMetric{
 		name:           "processor.errors",
@@ -129,6 +115,7 @@ var metricNameMapping = map[string]mappedMetric{
 		keyRemapper: map[string]string{
 			"router": "device_ip",
 		},
+		extraTags: []string{"flow_protocol:sflow"},
 	},
 }
 
@@ -138,13 +125,6 @@ func remapCollectorType(goflowType string) string {
 
 func remapFlowset(flowset string) string {
 	return flowsetMapper[flowset]
-}
-
-func remapNetFlowVersion(version string) string {
-	return netflowVersionMapper[version]
-}
-func remapSFlowVersion(version string) string {
-	return sflowVersionMapper[version]
 }
 
 func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFamily) (metrics.MetricType, string, float64, []string, error) {
