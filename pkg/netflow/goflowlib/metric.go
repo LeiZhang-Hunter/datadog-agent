@@ -164,8 +164,6 @@ func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFam
 	var tags []string
 	for _, labelPair := range metric.GetLabel() {
 		tagKey := labelPair.GetName()
-		// TODO: use newKey
-		// TODO: use valueRemapper
 		if !aMappedMetric.isAllowedTagKey(tagKey) {
 			continue
 		}

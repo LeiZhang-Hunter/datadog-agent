@@ -68,6 +68,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedTags:  []string{"device_ip:1.2.3.4", "flow_type:netflow5"},
 			expectedErr:   "",
 		},
+		// TODO: test error cases
 		{
 			name: "METRIC flow_decoder_count",
 			metricFamily: &promClient.MetricFamily{
