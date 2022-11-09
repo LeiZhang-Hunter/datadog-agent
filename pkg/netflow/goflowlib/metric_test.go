@@ -2,18 +2,11 @@ package goflowlib
 
 import (
 	"github.com/DataDog/datadog-agent/pkg/metrics"
+	"github.com/golang/protobuf/proto"
 	promClient "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
-
-func strToPtr(s string) *string {
-	return &s
-}
-
-func float64ToPtr(s float64) *float64 {
-	return &s
-}
 
 func TestConvertMetric(t *testing.T) {
 	tests := []struct {
@@ -29,14 +22,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "FEATURE ignore non allowed field",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_decoder_count"),
+				Name: proto.String("flow_decoder_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("worker"), Value: strToPtr("1")},
-					{Name: strToPtr("notAllowedField"), Value: strToPtr("1")},
+					{Name: proto.String("worker"), Value: proto.String("1")},
+					{Name: proto.String("notAllowedField"), Value: proto.String("1")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -48,15 +41,15 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "FEATURE valueRemapper",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_decoder_count"),
+				Name: proto.String("flow_decoder_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("name"), Value: strToPtr("NetFlowV5")},
-					{Name: strToPtr("worker"), Value: strToPtr("1")},
-					{Name: strToPtr("notAllowedField"), Value: strToPtr("1")},
+					{Name: proto.String("name"), Value: proto.String("NetFlowV5")},
+					{Name: proto.String("worker"), Value: proto.String("1")},
+					{Name: proto.String("notAllowedField"), Value: proto.String("1")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -68,14 +61,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "FEATURE keyRemapper",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_process_nf_count"),
+				Name: proto.String("flow_process_nf_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("version"), Value: strToPtr("5")},
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("version"), Value: proto.String("5")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -87,14 +80,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "FEATURE submit MonotonicCountType",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_process_nf_count"),
+				Name: proto.String("flow_process_nf_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("version"), Value: strToPtr("5")},
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("version"), Value: proto.String("5")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -106,14 +99,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "FEATURE submit GaugeType",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_process_nf_count"),
+				Name: proto.String("flow_process_nf_count"),
 				Type: promClient.MetricType_GAUGE.Enum(),
 			},
 			metric: &promClient.Metric{
-				Gauge: &promClient.Gauge{Value: float64ToPtr(10)},
+				Gauge: &promClient.Gauge{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("version"), Value: strToPtr("5")},
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("version"), Value: proto.String("5")},
 				},
 			},
 			expectedMetricType: metrics.GaugeType,
@@ -126,14 +119,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_decoder_count",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_decoder_count"),
+				Name: proto.String("flow_decoder_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("name"), Value: strToPtr("NetFlowV5")},
-					{Name: strToPtr("worker"), Value: strToPtr("1")},
+					{Name: proto.String("name"), Value: proto.String("NetFlowV5")},
+					{Name: proto.String("worker"), Value: proto.String("1")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -145,14 +138,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_decoder_error_count",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_decoder_error_count"),
+				Name: proto.String("flow_decoder_error_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("name"), Value: strToPtr("NetFlowV5")},
-					{Name: strToPtr("worker"), Value: strToPtr("1")},
+					{Name: proto.String("name"), Value: proto.String("NetFlowV5")},
+					{Name: proto.String("worker"), Value: proto.String("1")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -164,14 +157,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_process_nf_count",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_process_nf_count"),
+				Name: proto.String("flow_process_nf_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("version"), Value: strToPtr("5")},
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("version"), Value: proto.String("5")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -183,15 +176,15 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_process_nf_flowset_sum",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_process_nf_flowset_sum"),
+				Name: proto.String("flow_process_nf_flowset_sum"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("type"), Value: strToPtr("DataFlowSet")},
-					{Name: strToPtr("version"), Value: strToPtr("5")},
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("type"), Value: proto.String("DataFlowSet")},
+					{Name: proto.String("version"), Value: proto.String("5")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -203,15 +196,15 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_traffic_bytes",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_traffic_bytes"),
+				Name: proto.String("flow_traffic_bytes"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("remote_ip"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("local_port"), Value: strToPtr("2000")},
-					{Name: strToPtr("name"), Value: strToPtr("NetFlowV5")},
+					{Name: proto.String("remote_ip"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("local_port"), Value: proto.String("2000")},
+					{Name: proto.String("name"), Value: proto.String("NetFlowV5")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -223,15 +216,15 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_traffic_packets",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_traffic_packets"),
+				Name: proto.String("flow_traffic_packets"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("remote_ip"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("local_port"), Value: strToPtr("2000")},
-					{Name: strToPtr("name"), Value: strToPtr("NetFlowV5")},
+					{Name: proto.String("remote_ip"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("local_port"), Value: proto.String("2000")},
+					{Name: proto.String("name"), Value: proto.String("NetFlowV5")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -243,14 +236,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_process_sf_count",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_process_sf_count"),
+				Name: proto.String("flow_process_sf_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("version"), Value: strToPtr("5")},
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("version"), Value: proto.String("5")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
@@ -262,14 +255,14 @@ func TestConvertMetric(t *testing.T) {
 		{
 			name: "METRIC flow_process_sf_errors_count",
 			metricFamily: &promClient.MetricFamily{
-				Name: strToPtr("flow_process_sf_errors_count"),
+				Name: proto.String("flow_process_sf_errors_count"),
 				Type: promClient.MetricType_COUNTER.Enum(),
 			},
 			metric: &promClient.Metric{
-				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
 				Label: []*promClient.LabelPair{
-					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
-					{Name: strToPtr("error"), Value: strToPtr("some-error")},
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("error"), Value: proto.String("some-error")},
 				},
 			},
 			expectedMetricType: metrics.MonotonicCountType,
