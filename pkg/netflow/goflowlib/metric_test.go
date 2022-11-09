@@ -55,7 +55,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedMetricType: metrics.MonotonicCountType,
 			expectedName:       "decoder.messages",
 			expectedValue:      10.0,
-			expectedTags:       []string{"name:netflow5", "worker:1"},
+			expectedTags:       []string{"collector_type:netflow5", "worker:1"},
 			expectedErr:        "",
 		},
 		{
@@ -115,6 +115,46 @@ func TestConvertMetric(t *testing.T) {
 			expectedTags:       []string{"device_ip:1.2.3.4", "version:5", "flow_protocol:netflow"},
 			expectedErr:        "",
 		},
+		{
+			name: "REMAPPER remapCollectorType NetFlowV5",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_decoder_count"),
+				Type: promClient.MetricType_COUNTER.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("name"), Value: proto.String("NetFlowV5")},
+					{Name: proto.String("worker"), Value: proto.String("1")},
+					{Name: proto.String("notAllowedField"), Value: proto.String("1")},
+				},
+			},
+			expectedMetricType: metrics.MonotonicCountType,
+			expectedName:       "decoder.messages",
+			expectedValue:      10.0,
+			expectedTags:       []string{"collector_type:netflow5", "worker:1"},
+			expectedErr:        "",
+		},
+		{
+			name: "REMAPPER remapCollectorType NetFlow",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_decoder_count"),
+				Type: promClient.MetricType_COUNTER.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("name"), Value: proto.String("NetFlow")},
+					{Name: proto.String("worker"), Value: proto.String("1")},
+					{Name: proto.String("notAllowedField"), Value: proto.String("1")},
+				},
+			},
+			expectedMetricType: metrics.MonotonicCountType,
+			expectedName:       "decoder.messages",
+			expectedValue:      10.0,
+			expectedTags:       []string{"collector_type:netflow", "worker:1"},
+			expectedErr:        "",
+		},
 		// TODO: test error cases
 		{
 			name: "METRIC flow_decoder_count",
@@ -132,7 +172,7 @@ func TestConvertMetric(t *testing.T) {
 			expectedMetricType: metrics.MonotonicCountType,
 			expectedName:       "decoder.messages",
 			expectedValue:      10.0,
-			expectedTags:       []string{"name:netflow5", "worker:1"},
+			expectedTags:       []string{"collector_type:netflow5", "worker:1"},
 			expectedErr:        "",
 		},
 		{

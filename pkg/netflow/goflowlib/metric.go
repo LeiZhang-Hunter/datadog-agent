@@ -25,11 +25,10 @@ func (m mappedMetric) isAllowedTagKey(tagKey string) bool {
 	return false
 }
 
-var typeMapper = map[string]string{
+var collectorTypeMapper = map[string]string{
 	"NetFlowV5": "netflow5",
 	"NetFlow":   "netflow",
 	"sFlow":     "sflow",
-	// TODO: test all cases
 }
 
 var flowsetMapper = map[string]string{
@@ -57,14 +56,17 @@ var metricNameMapping = map[string]mappedMetric{
 		name:           "decoder.messages",
 		allowedTagKeys: []string{"name", "worker"},
 		valueRemapper: map[string]remapperType{
-			"name": remapGoflowType,
+			"name": remapCollectorType,
+		},
+		keyRemapper: map[string]string{
+			"name": "collector_type",
 		},
 	},
 	"flow_decoder_error_count": mappedMetric{
 		name:           "decoder.errors",
 		allowedTagKeys: []string{"name", "worker"},
 		valueRemapper: map[string]remapperType{
-			"name": remapGoflowType,
+			"name": remapCollectorType,
 		},
 	},
 	"flow_process_nf_count": mappedMetric{
@@ -95,7 +97,7 @@ var metricNameMapping = map[string]mappedMetric{
 			"name":       "flow_type",
 		},
 		valueRemapper: map[string]remapperType{
-			"name": remapGoflowType,
+			"name": remapCollectorType,
 		},
 	},
 	"flow_traffic_packets": mappedMetric{
@@ -107,7 +109,7 @@ var metricNameMapping = map[string]mappedMetric{
 			"name":       "flow_type",
 		},
 		valueRemapper: map[string]remapperType{
-			"name": remapGoflowType,
+			"name": remapCollectorType,
 		},
 	},
 	"flow_process_sf_count": mappedMetric{
@@ -130,8 +132,8 @@ var metricNameMapping = map[string]mappedMetric{
 	},
 }
 
-func remapGoflowType(goflowType string) string {
-	return typeMapper[goflowType]
+func remapCollectorType(goflowType string) string {
+	return collectorTypeMapper[goflowType]
 }
 
 func remapFlowset(flowset string) string {
