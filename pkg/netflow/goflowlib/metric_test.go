@@ -255,7 +255,42 @@ func TestConvertMetric(t *testing.T) {
 			expectedTags:       []string{"device_ip:1.2.3.4", "version:5", "flow_protocol:netflow"},
 			expectedErr:        "",
 		},
-		// TODO: test error cases
+		{
+			name: "ERROR metric mapping not found",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_unknown_metric"),
+				Type: promClient.MetricType_COUNTER.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+				},
+			},
+			expectedMetricType: 0,
+			expectedName:       "",
+			expectedValue:      0,
+			expectedTags:       nil,
+			expectedErr:        "metric mapping not found for flow_unknown_metric",
+		},
+		{
+			name: "ERROR metric mapping not found",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_decoder_count"),
+				Type: promClient.MetricType_UNTYPED.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+				},
+			},
+			expectedMetricType: 0,
+			expectedName:       "",
+			expectedValue:      0,
+			expectedTags:       nil,
+			expectedErr:        "metric type `UNTYPED` (3) not supported",
+		},
 		{
 			name: "METRIC flow_decoder_count",
 			metricFamily: &promClient.MetricFamily{
