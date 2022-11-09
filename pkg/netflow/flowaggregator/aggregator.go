@@ -172,7 +172,7 @@ func (agg *FlowAggregator) submitGoflowMetrics() error {
 				log.Debugf("Error converting prometheus metric: %s", err)
 				continue
 			}
-			agg.sender.Gauge("datadog.netflow.goflow."+name, value, "", tags)
+			agg.sender.Gauge("datadog.netflow."+name, value, "", tags)
 		}
 	}
 	return nil
