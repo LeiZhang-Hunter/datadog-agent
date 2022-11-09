@@ -36,7 +36,6 @@ var flowsetMapper = map[string]string{
 	"TemplateFlowSet":        "template_flow_set",
 	"OptionsTemplateFlowSet": "options_template_flow_set",
 	"OptionsDataFlowSet":     "options_data_flow_set",
-	// TODO: test all cases
 }
 
 // metricNameMapping maps goflow prometheus metrics to datadog netflow telemetry metrics
