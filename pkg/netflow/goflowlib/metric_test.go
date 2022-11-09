@@ -173,6 +173,40 @@ func TestConvertMetric(t *testing.T) {
 			expectedTags:  []string{"device_ip:1.2.3.4", "listener_port:2000", "flow_type:netflow5"},
 			expectedErr:   "",
 		},
+		{
+			name: "METRIC flow_process_sf_count",
+			metricFamily: &promClient.MetricFamily{
+				Name: strToPtr("flow_process_sf_count"),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Label: []*promClient.LabelPair{
+					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
+					{Name: strToPtr("version"), Value: strToPtr("5")},
+				},
+			},
+			expectedName:  "processor.flows",
+			expectedValue: 10.0,
+			expectedTags:  []string{"device_ip:1.2.3.4", "flow_type:sflow5"},
+			expectedErr:   "",
+		},
+		{
+			name: "METRIC flow_process_sf_errors_count",
+			metricFamily: &promClient.MetricFamily{
+				Name: strToPtr("flow_process_sf_errors_count"),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: float64ToPtr(10)},
+				Label: []*promClient.LabelPair{
+					{Name: strToPtr("router"), Value: strToPtr("1.2.3.4")},
+					{Name: strToPtr("error"), Value: strToPtr("some-error")},
+				},
+			},
+			expectedName:  "processor.errors",
+			expectedValue: 10.0,
+			expectedTags:  []string{"device_ip:1.2.3.4", "error:some-error"},
+			expectedErr:   "",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

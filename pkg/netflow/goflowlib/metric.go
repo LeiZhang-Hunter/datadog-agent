@@ -63,7 +63,6 @@ var metricNameMapping = map[string]mappedMetric{
 		name:           "processor.flows",
 		allowedTagKeys: []string{"router", "version"},
 		valueRemapper: map[string]remapperType{
-			"type":    remapFlowset,
 			"version": remapNetFlowVersion,
 		},
 		keyRemapper: map[string]string{
@@ -105,6 +104,24 @@ var metricNameMapping = map[string]mappedMetric{
 		},
 		valueRemapper: map[string]remapperType{
 			"name": remapGoflowType,
+		},
+	},
+	"flow_process_sf_count": mappedMetric{
+		name:           "processor.flows",
+		allowedTagKeys: []string{"router", "version"},
+		valueRemapper: map[string]remapperType{
+			"version": remapSFlowVersion,
+		},
+		keyRemapper: map[string]string{
+			"router":  "device_ip",
+			"version": "flow_type",
+		},
+	},
+	"flow_process_sf_errors_count": mappedMetric{
+		name:           "processor.errors",
+		allowedTagKeys: []string{"router", "error"},
+		keyRemapper: map[string]string{
+			"router": "device_ip",
 		},
 	},
 }
