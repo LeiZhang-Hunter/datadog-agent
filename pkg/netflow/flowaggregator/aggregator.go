@@ -22,14 +22,14 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/netflow/config"
 )
 
-const flowAggregatorFlushInterval = 10 * time.Second
+var flushFlowsToSendInterval = 10 * time.Second
 
 const metricPrefix = "datadog.netflow."
 
 // FlowAggregator is used for space and time aggregation of NetFlow flows
 type FlowAggregator struct {
 	flowIn                       chan *common.Flow
-	flushInterval                time.Duration
+	flushFlowsToSendInterval     time.Duration
 	rollupTrackerRefreshInterval time.Duration
 	flowAcc                      *flowAccumulator
 	sender                       aggregator.Sender
@@ -47,7 +47,7 @@ func NewFlowAggregator(sender aggregator.Sender, config *config.NetflowConfig, h
 	return &FlowAggregator{
 		flowIn:                       make(chan *common.Flow, config.AggregatorBufferSize),
 		flowAcc:                      newFlowAccumulator(flushInterval, flowContextTTL, config.AggregatorPortRollupThreshold, config.AggregatorPortRollupDisabled),
-		flushInterval:                flowAggregatorFlushInterval,
+		flushFlowsToSendInterval:     flushFlowsToSendInterval,
 		rollupTrackerRefreshInterval: rollupTrackerRefreshInterval,
 		sender:                       sender,
 		stopChan:                     make(chan struct{}),
@@ -103,12 +103,12 @@ func (agg *FlowAggregator) sendFlows(flows []*common.Flow) {
 }
 
 func (agg *FlowAggregator) flushLoop() {
-	var flushTicker <-chan time.Time
+	var flushFlowsToSendTicker <-chan time.Time
 
-	if agg.flushInterval > 0 {
-		flushTicker = time.NewTicker(agg.flushInterval).C
+	if agg.flushFlowsToSendInterval > 0 {
+		flushFlowsToSendTicker = time.NewTicker(agg.flushFlowsToSendInterval).C
 	} else {
-		log.Debug("flushInterval set to 0: will never flush automatically")
+		log.Debug("flushFlowsToSendInterval set to 0: will never flush automatically")
 	}
 
 	rollupTrackersRefresh := time.NewTicker(agg.rollupTrackerRefreshInterval).C
@@ -119,7 +119,7 @@ func (agg *FlowAggregator) flushLoop() {
 		case <-agg.stopChan:
 			return
 		// automatic flush sequence
-		case <-flushTicker:
+		case <-flushFlowsToSendTicker:
 			agg.flush()
 		// refresh rollup trackers
 		case <-rollupTrackersRefresh:
