@@ -39,32 +39,33 @@ var netflowVersionMapper = map[string]string{
 	// TODO: more
 }
 
+var sflowVersionMapper = map[string]string{
+	"5": "sflow5",
+}
+
 // metricNameMapping maps goflow prometheus metrics to datadog netflow telemetry metrics
 var metricNameMapping = map[string]mappedMetric{
 	"flow_decoder_count": mappedMetric{
-		name:           "decoder.messages_decoded",
+		name:           "decoder.messages",
 		allowedTagKeys: []string{"name", "worker"},
 		valueRemapper: map[string]remapperType{
 			"name": remapGoflowType,
 		},
 	},
-	//"flow_decoder_error_count": mappedMetric{
-	//	name:        "decoder.errors",
-	//	allowedTagKeys: []string{"name", "worker"},
-	//	valueRemapper: map[string]remapperType{
-	//		"name": remapGoflowType,
-	//	},
-	//},
+	"flow_decoder_error_count": mappedMetric{
+		name:           "decoder.errors",
+		allowedTagKeys: []string{"name", "worker"},
+		valueRemapper: map[string]remapperType{
+			"name": remapGoflowType,
+		},
+	},
 	"flow_process_nf_count": mappedMetric{
 		name:           "processor.flows",
 		allowedTagKeys: []string{"router", "version"},
 		keyRemapper: map[string]string{
 			"router": "device_ip",
 		},
-		valueRemapper: map[string]remapperType{
-			"version": remapNetFlowVersion,
-		},
-		// Add NetFlow tags
+		extraTags: []string{"protocol:netflow"},
 	},
 	"flow_process_nf_flowset_sum": mappedMetric{
 		name:           "processor.flowsets",
@@ -75,14 +76,15 @@ var metricNameMapping = map[string]mappedMetric{
 		keyRemapper: map[string]string{
 			"router": "device_ip",
 		},
-		// Add NetFlow tags
+		extraTags: []string{"protocol:netflow"},
 	},
 	"flow_traffic_bytes": mappedMetric{
 		name:           "traffic.bytes",
-		allowedTagKeys: []string{"local_port", "remote_ip", "type"},
+		allowedTagKeys: []string{"local_port", "remote_ip", "name"},
 		keyRemapper: map[string]string{
 			"local_port": "listener_port",
 			"remote_ip":  "device_ip",
+			"name":       "flow_type",
 		},
 		valueRemapper: map[string]remapperType{
 			"name": remapGoflowType,
@@ -90,10 +92,11 @@ var metricNameMapping = map[string]mappedMetric{
 	},
 	"flow_traffic_packets": mappedMetric{
 		name:           "traffic.packets",
-		allowedTagKeys: []string{"local_port", "remote_ip", "type"},
+		allowedTagKeys: []string{"local_port", "remote_ip", "name"},
 		keyRemapper: map[string]string{
 			"local_port": "listener_port",
 			"remote_ip":  "device_ip",
+			"name":       "flow_type",
 		},
 		valueRemapper: map[string]remapperType{
 			"name": remapGoflowType,
@@ -111,6 +114,9 @@ func remapFlowset(flowset string) string {
 
 func remapNetFlowVersion(version string) string {
 	return netflowVersionMapper[version]
+}
+func remapSFlowVersion(version string) string {
+	return sflowVersionMapper[version]
 }
 
 func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFamily) (string, float64, []string, error) {
@@ -154,6 +160,9 @@ func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFam
 		if tagKey != "" && tagVal != "" {
 			tags = append(tags, tagKey+":"+tagVal)
 		}
+	}
+	if len(aMappedMetric.extraTags) > 0 {
+		tags = append(tags, aMappedMetric.extraTags...)
 	}
 	return aMappedMetric.name, floatValue, tags, nil
 }
