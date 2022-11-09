@@ -155,6 +155,86 @@ func TestConvertMetric(t *testing.T) {
 			expectedTags:       []string{"collector_type:netflow", "worker:1"},
 			expectedErr:        "",
 		},
+		{
+			name: "METRIC remapFlowset DataFlowSet",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_process_nf_flowset_sum"),
+				Type: promClient.MetricType_COUNTER.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("type"), Value: proto.String("DataFlowSet")},
+					{Name: proto.String("version"), Value: proto.String("5")},
+				},
+			},
+			expectedMetricType: metrics.MonotonicCountType,
+			expectedName:       "processor.flowsets",
+			expectedValue:      10.0,
+			expectedTags:       []string{"device_ip:1.2.3.4", "version:5", "flow_protocol:netflow", "type:data_flow_set"},
+			expectedErr:        "",
+		},
+		{
+			name: "METRIC remapFlowset DataFlowSet",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_process_nf_flowset_sum"),
+				Type: promClient.MetricType_COUNTER.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("type"), Value: proto.String("TemplateFlowSet")},
+					{Name: proto.String("version"), Value: proto.String("5")},
+				},
+			},
+			expectedMetricType: metrics.MonotonicCountType,
+			expectedName:       "processor.flowsets",
+			expectedValue:      10.0,
+			expectedTags:       []string{"device_ip:1.2.3.4", "version:5", "flow_protocol:netflow", "type:template_flow_set"},
+			expectedErr:        "",
+		},
+		{
+			name: "METRIC remapFlowset OptionsTemplateFlowSet",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_process_nf_flowset_sum"),
+				Type: promClient.MetricType_COUNTER.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("type"), Value: proto.String("OptionsTemplateFlowSet")},
+					{Name: proto.String("version"), Value: proto.String("5")},
+				},
+			},
+			expectedMetricType: metrics.MonotonicCountType,
+			expectedName:       "processor.flowsets",
+			expectedValue:      10.0,
+			expectedTags:       []string{"device_ip:1.2.3.4", "version:5", "flow_protocol:netflow", "type:options_template_flow_set"},
+			expectedErr:        "",
+		},
+		{
+			name: "METRIC remapFlowset OptionsDataFlowSet",
+			metricFamily: &promClient.MetricFamily{
+				Name: proto.String("flow_process_nf_flowset_sum"),
+				Type: promClient.MetricType_COUNTER.Enum(),
+			},
+			metric: &promClient.Metric{
+				Counter: &promClient.Counter{Value: proto.Float64(10)},
+				Label: []*promClient.LabelPair{
+					{Name: proto.String("router"), Value: proto.String("1.2.3.4")},
+					{Name: proto.String("type"), Value: proto.String("OptionsDataFlowSet")},
+					{Name: proto.String("version"), Value: proto.String("5")},
+				},
+			},
+			expectedMetricType: metrics.MonotonicCountType,
+			expectedName:       "processor.flowsets",
+			expectedValue:      10.0,
+			expectedTags:       []string{"device_ip:1.2.3.4", "version:5", "flow_protocol:netflow", "type:options_data_flow_set"},
+			expectedErr:        "",
+		},
 		// TODO: test error cases
 		{
 			name: "METRIC flow_decoder_count",
