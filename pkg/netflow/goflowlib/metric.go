@@ -70,25 +70,21 @@ var metricNameMapping = map[string]mappedMetric{
 	"flow_process_nf_count": mappedMetric{
 		name:           "processor.flows",
 		allowedTagKeys: []string{"router", "version"},
-		valueRemapper: map[string]remapperType{
-			"version": remapNetFlowVersion,
-		},
 		keyRemapper: map[string]string{
-			"router":  "device_ip",
-			"version": "flow_type",
+			"router": "device_ip",
 		},
+		extraTags: []string{"flow_protocol:netflow"},
 	},
 	"flow_process_nf_flowset_sum": mappedMetric{
 		name:           "processor.flowsets",
 		allowedTagKeys: []string{"router", "type", "version"},
 		valueRemapper: map[string]remapperType{
-			"type":    remapFlowset,
-			"version": remapNetFlowVersion,
+			"type": remapFlowset,
 		},
 		keyRemapper: map[string]string{
-			"router":  "device_ip",
-			"version": "flow_type",
+			"router": "device_ip",
 		},
+		extraTags: []string{"flow_protocol:netflow"},
 	},
 	"flow_traffic_bytes": mappedMetric{
 		name:           "traffic.bytes",
