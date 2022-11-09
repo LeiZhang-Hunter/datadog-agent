@@ -27,17 +27,24 @@ func (m mappedMetric) isAllowedTagKey(tagKey string) bool {
 
 var typeMapper = map[string]string{
 	"NetFlowV5": "netflow5",
-	// TODO: more
+	"NetFlow":   "netflow",
+	"sFlow":     "sflow",
+	// TODO: test all cases
 }
 
 var flowsetMapper = map[string]string{
-	"DataFlowSet": "data_flow_set",
-	// TODO: more
+	"DataFlowSet":            "data_flow_set",
+	"TemplateFlowSet":        "template_flow_set",
+	"OptionsTemplateFlowSet": "options_template_flow_set",
+	"OptionsDataFlowSet":     "options_data_flow_set",
+	// TODO: test all cases
 }
 
 var netflowVersionMapper = map[string]string{
-	"5": "netflow5",
-	// TODO: more
+	"5":  "netflow5",
+	"9":  "netflow9",
+	"10": "netflow10",
+	// TODO: test all cases
 }
 
 var sflowVersionMapper = map[string]string{
