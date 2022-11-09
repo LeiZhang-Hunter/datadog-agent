@@ -65,7 +65,7 @@ func TestConvertMetric(t *testing.T) {
 			},
 			expectedName:  "processor.flows",
 			expectedValue: 10.0,
-			expectedTags:  []string{"device_ip:1.2.3.4", "version:5", "protocol:netflow"},
+			expectedTags:  []string{"device_ip:1.2.3.4", "flow_type:netflow5"},
 			expectedErr:   "",
 		},
 		{
@@ -116,7 +116,7 @@ func TestConvertMetric(t *testing.T) {
 			},
 			expectedName:  "processor.flows",
 			expectedValue: 10.0,
-			expectedTags:  []string{"device_ip:1.2.3.4", "version:5", "protocol:netflow"},
+			expectedTags:  []string{"device_ip:1.2.3.4", "flow_type:netflow5"},
 			expectedErr:   "",
 		},
 		{
@@ -134,7 +134,7 @@ func TestConvertMetric(t *testing.T) {
 			},
 			expectedName:  "processor.flowsets",
 			expectedValue: 10.0,
-			expectedTags:  []string{"device_ip:1.2.3.4", "version:5", "protocol:netflow", "type:data_flow_set"},
+			expectedTags:  []string{"device_ip:1.2.3.4", "flow_type:netflow5", "type:data_flow_set"},
 			expectedErr:   "",
 		},
 		{
