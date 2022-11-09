@@ -159,9 +159,9 @@ func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFam
 			continue
 		}
 		tagVal := labelPair.GetValue()
-		valueRemapper, ok := aMappedMetric.valueRemapper[tagKey]
+		valueRemapperFn, ok := aMappedMetric.valueRemapper[tagKey]
 		if ok {
-			tagVal = valueRemapper(tagVal)
+			tagVal = valueRemapperFn(tagVal)
 		}
 		newKey, ok := aMappedMetric.keyRemapper[tagKey]
 		if ok {
