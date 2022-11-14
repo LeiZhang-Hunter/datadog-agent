@@ -28,7 +28,7 @@ const metricPrefix = "datadog.netflow."
 // FlowAggregator is used for space and time aggregation of NetFlow flows
 type FlowAggregator struct {
 	flowIn                       chan *common.Flow
-	flushFlowsToSendInterval     time.Duration
+	flushFlowsToSendInterval     time.Duration // interval for checking flows to flush and send them to EP Forwarder
 	rollupTrackerRefreshInterval time.Duration
 	flowAcc                      *flowAccumulator
 	sender                       aggregator.Sender
