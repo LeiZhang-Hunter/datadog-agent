@@ -7,7 +7,6 @@ package flowaggregator
 
 import (
 	"encoding/json"
-	"github.com/DataDog/datadog-agent/pkg/metrics"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/DataDog/datadog-agent/pkg/aggregator"
 	"github.com/DataDog/datadog-agent/pkg/epforwarder"
+	"github.com/DataDog/datadog-agent/pkg/metrics"
 	"github.com/DataDog/datadog-agent/pkg/netflow/goflowlib"
 	"github.com/DataDog/datadog-agent/pkg/util/log"
 
