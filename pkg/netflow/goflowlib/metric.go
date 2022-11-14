@@ -142,9 +142,6 @@ func ConvertMetric(metric *promClient.Metric, metricFamily *promClient.MetricFam
 		return 0, "", 0, nil, fmt.Errorf("metric mapping not found for %s", origMetricName)
 	}
 
-	if metricFamily.GetType() == promClient.MetricType_COUNTER {
-		floatValue = metric.GetCounter().GetValue()
-	}
 	promMetricType := metricFamily.GetType()
 	switch promMetricType {
 	case promClient.MetricType_COUNTER:
