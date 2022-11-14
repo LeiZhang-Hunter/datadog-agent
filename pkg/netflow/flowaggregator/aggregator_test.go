@@ -6,12 +6,19 @@
 package flowaggregator
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/DataDog/datadog-agent/pkg/util/log"
+	"github.com/cihub/seelog"
+	"github.com/prometheus/client_golang/prometheus"
+	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	promClient "github.com/prometheus/client_model/go"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -300,4 +307,47 @@ func waitForFlowsToBeFlushed(aggregator *FlowAggregator, timeoutDuration time.Du
 			}
 		}
 	}
+}
+
+func TestFlowAggregator_flush_submitCollectorMetrics_error(t *testing.T) {
+	// 1/ Arrange
+	var b bytes.Buffer
+	w := bufio.NewWriter(&b)
+
+	l, err := seelog.LoggerFromWriterWithMinLevelAndFormat(w, seelog.DebugLvl, "[%LEVEL] %FuncShort: %Msg")
+	assert.Nil(t, err)
+	log.SetupLogger(l, "debug")
+
+	sender := mocksender.NewMockSender("")
+	sender.On("Gauge", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
+	sender.On("MonotonicCount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
+	sender.On("EventPlatformEvent", mock.Anything, mock.Anything).Return()
+	sender.On("Commit").Return()
+	conf := config.NetflowConfig{
+		StopTimeout:                            10,
+		AggregatorBufferSize:                   20,
+		AggregatorFlushInterval:                1,
+		AggregatorPortRollupThreshold:          10,
+		AggregatorRollupTrackerRefreshInterval: 3600,
+		Listeners: []config.ListenerConfig{
+			{
+				FlowType: common.TypeNetFlow9,
+				BindHost: "127.0.0.1",
+				Port:     uint16(1234),
+				Workers:  10,
+			},
+		},
+	}
+	aggregator := NewFlowAggregator(sender, &conf, "my-hostname")
+	aggregator.goflowPrometheusGatherer = prometheus.GathererFunc(func() ([]*promClient.MetricFamily, error) {
+		return nil, fmt.Errorf("some prometheus gatherer error")
+	})
+
+	// 2/ Act
+	aggregator.flush()
+
+	// 3/ Assert
+	w.Flush()
+	logs := b.String()
+	assert.Equal(t, strings.Count(logs, "[WARN] flush: error submitting collector metrics: some prometheus gatherer error"), 1, logs)
 }

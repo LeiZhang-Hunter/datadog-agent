@@ -36,6 +36,7 @@ type FlowAggregator struct {
 	receivedFlowCount            *atomic.Uint64
 	flushedFlowCount             *atomic.Uint64
 	hostname                     string
+	goflowPrometheusGatherer     prometheus.Gatherer
 }
 
 // NewFlowAggregator returns a new FlowAggregator
@@ -53,6 +54,7 @@ func NewFlowAggregator(sender aggregator.Sender, config *config.NetflowConfig, h
 		receivedFlowCount:            atomic.NewUint64(0),
 		flushedFlowCount:             atomic.NewUint64(0),
 		hostname:                     hostname,
+		goflowPrometheusGatherer:     prometheus.DefaultGatherer,
 	}
 }
 
@@ -151,8 +153,7 @@ func (agg *FlowAggregator) flush() int {
 
 	err := agg.submitCollectorMetrics()
 	if err != nil {
-		// TODO: test me
-		log.Debugf("error submitting collector metrics: %s", err)
+		log.Warnf("error submitting collector metrics: %s", err)
 	}
 	return len(flowsToFlush)
 }
@@ -163,12 +164,12 @@ func (agg *FlowAggregator) rollupTrackersRefresh() {
 }
 
 func (agg *FlowAggregator) submitCollectorMetrics() error {
-	promMetrics, err := prometheus.DefaultGatherer.Gather()
+	promMetrics, err := agg.goflowPrometheusGatherer.Gather()
 	if err != nil {
 		return err
 	}
 	for _, metricFamily := range promMetrics {
-		log.Debugf("Prom metric: %s", metricFamily.GetName())
+		log.Tracef("Prom metric: %s", metricFamily.GetName())
 		for _, metric := range metricFamily.Metric {
 			metricType, name, value, tags, err := goflowlib.ConvertMetric(metric, metricFamily)
 			if err != nil {
